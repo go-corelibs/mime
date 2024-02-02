@@ -185,8 +185,8 @@ func Test(t *testing.T) {
 
 	Convey("Mime", t, func() {
 		So(Mime("."), ShouldEqual, "inode/directory")
-		So(Mime("./README.md"), ShouldEqual, "text/markdown; charset=utf-8")
-		So(Mime("./_testing/empty-png"), ShouldEqual, "image/png")
+		So(Mime("./testdata/README.md"), ShouldEqual, "text/markdown; charset=utf-8")
+		So(Mime("./testdata/empty-png"), ShouldEqual, "image/png")
 	})
 
 	Convey("PlainTextDetector", t, func() {
