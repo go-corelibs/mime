@@ -1,6 +1,6 @@
 module github.com/go-corelibs/mime
 
-go 1.21.6
+go 1.22.4
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.3
