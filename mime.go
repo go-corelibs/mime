@@ -31,7 +31,8 @@ const (
 	CssMimeType        = "text/css"
 	ScssMimeType       = "text/x-scss"
 	JsonMimeType       = "application/json"
-	JavaScriptMimeType = "text/javascript"
+	JavaScriptMimeType = "application/javascript"
+	WasmMimeType       = "application/wasm"
 	BinaryMimeType     = "application/octet-stream"
 
 	// DirectoryMimeType defines the mime type used for filesystem directories
@@ -61,12 +62,17 @@ const (
 
 var (
 	gExtension = &lookup{m: map[string]string{
-		"txt":  TextMimeType + "; charset=utf-8",
-		"html": HtmlMimeType + "; charset=utf-8",
-		"css":  CssMimeType + "; charset=utf-8",
-		"scss": ScssMimeType + "; charset=utf-8",
-		"json": JsonMimeType + "; charset=utf-8",
-		"js":   JavaScriptMimeType + "; charset=utf-8",
+		"txt":     TextMimeType + "; charset=utf-8",
+		"html":    HtmlMimeType + "; charset=utf-8",
+		"css":     CssMimeType + "; charset=utf-8",
+		"scss":    ScssMimeType + "; charset=utf-8",
+		"json":    JsonMimeType + "; charset=utf-8",
+		"js":      JavaScriptMimeType + "; charset=utf-8",
+		"js.gz":   JavaScriptMimeType,
+		"js.br":   JavaScriptMimeType,
+		"wasm":    WasmMimeType,
+		"wasm.gz": WasmMimeType,
+		"wasm.br": WasmMimeType,
 	}}
 	gCharset = &lookup{m: map[string]string{
 		TextMimeType:       "utf-8",
@@ -196,9 +202,18 @@ func IsPlainText(mime string) (yes bool) {
 // github.com/go-corelibs/path.ExtExt and uses GetExtension with any
 // extensions found
 func FromPathOnly(path string) (mime string) {
+	var ok bool
 	if path != "" {
-		if a, b := clPath.ExtExt(path); b != "" && a == "tmpl" {
-			mime, _ = GetExtension(b)
+		if a, b := clPath.ExtExt(path); b != "" {
+			if a == "tmpl" {
+				if mime, ok = GetExtension(b); !ok {
+					mime, _ = GetExtension(a)
+				}
+			} else {
+				if mime, ok = GetExtension(b + "." + a); !ok {
+					mime, _ = GetExtension(a)
+				}
+			}
 		} else if a != "" {
 			mime, _ = GetExtension(a)
 		}
