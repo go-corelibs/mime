@@ -2,11 +2,11 @@
 
 SHELL := /bin/bash
 
-CORELIB_NAME := $(shell basename "${CORELIB_PKG}")
+CORELIB_NAME := $(shell echo "${CORELIB_PKG}" | perl -pe 's!(?:github.com/)?go-corelibs/!!')
 
 VERSION_TAGS        += CORELIBS
 CORELIBS_MK_SUMMARY := Go-CoreLibs.mk
-CORELIBS_MK_VERSION := v0.2.0
+CORELIBS_MK_VERSION := v0.2.2
 
 GOPKG_KEYS          ?=
 GOPKG_AUTO_CORELIBS ?= true
@@ -19,6 +19,18 @@ else
 CLEAN_FILES += ${DEFAULT_CLEAN_FILES}
 endif
 CLEAN_FILES += ${BUILD_COMMANDS}
+
+BUILD_TAGS ?= all
+ifeq (${BUILD_TAGS},)
+_BUILD_TAGS :=
+else
+_BUILD_TAGS := -tags=$(shell echo "${BUILD_TAGS}" \
+	| perl -e '$$r="";while(<>){$$r.=$$_;};$$r=~s!\s+!,!msg;$$r=~s!(^,|,$$)!!g;$$_="";print $$r;' \
+)
+endif
+
+check:
+	@echo "${_BUILD_TAGS}"
 
 GOTESTS_SKIP ?=
 _GOTEST_SKIP := $(shell \
@@ -282,14 +294,14 @@ build:
 	@if [ -n "${BUILD_COMMANDS}" ]; then \
 		for NAME in ${BUILD_COMMANDS}; do \
 			if [ -d "./cmd/$${NAME}" ]; then \
-				go build -v -o "$${NAME}" "./cmd/$${NAME}"; \
+				${CMD} go build -v -o "$${NAME}" ${_BUILD_TAGS} "./cmd/$${NAME}"; \
 			else \
 				echo "# package not found: ./cmd/$${NAME}"; \
 				false; \
 			fi; \
 		done; \
 	else \
-		go build -v ./...; \
+		${CMD} go build -v ${_BUILD_TAGS} ./...; \
 	fi
 
 clean:
