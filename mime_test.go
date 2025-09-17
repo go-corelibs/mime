@@ -70,7 +70,7 @@ func Test(t *testing.T) {
 			Convey("js", func() {
 				mime, ok := GetExtension("js")
 				So(ok, ShouldBeTrue)
-				So(mime, ShouldEqual, "text/javascript; charset=utf-8")
+				So(mime, ShouldEqual, "application/javascript; charset=utf-8")
 			})
 		})
 
